@@ -4,8 +4,7 @@
         <table class="table mt-4">
             <thead>
                 <tr>搜尋國家:
-                    <input type="text" placeholder="請輸入" 
-                        @keyup="toSearch()" v-model="search" />
+                    <input type="text" placeholder="請輸入" @keyup="toSearch()" v-model="search" />
                 </tr>
                 <tr>
                     <th>國家旗幟</th>
@@ -18,8 +17,8 @@
             <tbody>
                 <tr v-for="(item, key) in filterCountry" :key="item.id">
                     <td><img v-bind:src="item.flags.png" alt="Error Image" /></td>
-                    <td>{{ item.name.common }}</td>
-                    <td>{{ item.altSpellings[0] }}</td>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.altSpellings }}</td>
                     <td><button @click="getPerCountry(item.capital)">查看更多</button></td>
 
                 </tr>
@@ -31,9 +30,9 @@
             aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <div class="modal-header" v-if="perCountry.name != null">
+                    <div class="modal-header">
                         <h5 class="modal-title" id="exampleModalLabel">
-                            {{ perCountry.name.common }}</h5>
+                            {{ perCountry.name }}</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -42,11 +41,9 @@
                         <div>國家簡稱: {{ perCountry.altSpellings }}</div>
                         <div>首都: {{ perCountry.capital }}</div>
                         <div>時區: {{ perCountry.timezones }}</div>
-                        <div v-if="perCountry.maps != null">
-                            地理位置: {{ perCountry.maps.googleMaps }}</div>
                         <!-- 暫時抓不到資料 -->
-                        <!--<div>貨幣名稱: {{ perCountry.currencies }}</div>
-                             貨幣符號: {{ perCountry.currencies.XCD.symbol }}</div> -->
+                        <!-- <div>貨幣名稱: {{ perCountry.currencies.name }}</div>
+                        <div> 貨幣符號: {{ perCountry.currencies.symbol }}</div> -->
 
                     </div>
                     <div class="modal-footer">
@@ -58,16 +55,17 @@
         </div>
 
         <nav aria-label="Page navigation example">
+            <!--分頁-->
             <ul class="pagination">
                 <li class="page-item">
                     <a class="page-link" href="#" aria-label="Previous">
                         <span aria-hidden="true">&laquo;</span>
                         <span class="sr-only">Previous</span>
                     </a>
-                </li><!--從這開始研究分頁-->
-                <!-- <li class="page-item" v-for="page in pagenation.idd" :key="page">
-              <a class="page-link" href="#">{{ page }}</a>
-          </li> -->
+                </li>
+                <li class="page-item" v-for="(page, key) in pages" :key="page.id">
+                    <a class="page-link" href="#" >{{ page }}</a>
+                </li>
                 <li class="page-item">
                     <a class="page-link" href="#" aria-label="Next">
                         <span aria-hidden="true">&raquo;</span>
@@ -90,8 +88,8 @@ export default {
             country: [],
             perCountry: [],
             search: "",
-            filterCountry: []
-            // pagenation:{}
+            filterCountry: [],
+            pages:[]
         };
     },
     methods: {
@@ -103,30 +101,27 @@ export default {
 
                 vm.country = response.data;
                 vm.filterCountry = response.data;
-                // console.log("QQ" + response.data[0].altSpellings);
+                // console.log("QQ" + response.data);
                 //呼叫排序
                 this.sortArray();
-
-                // vm.pagenation=response.data;//計算總頁數
+                this.pageCount();
             })
         },
         getPerCountry(capital) {
             const url = `${process.env.APIPATH}/capital/${capital}`;
             const vm = this;
-            vm.isLoading = true;
             this.$http.get(url).then((response) => {
                 vm.perCountry = response.data[0];
                 $('#countryModal').modal('show');
-                // console.log(response.data[0]);
-                vm.isLoading = false;
+                // console.log("~~"+response.data[0]);
             })
         },
         toSearch() {
             const vm = this;
             vm.filterCountry = vm.country.filter((item) => {
                 //模糊搜尋
-                if (item.name.common.includes(this.search)) {
-                    this.filterCountry = item.name.common;
+                if (item.name.includes(this.search)) {
+                    this.filterCountry = item.name;
                     // console.log("OLO", this.filterCountry);
                     return this.filterCountry;
                     //如果是空的，回傳全部國家。
@@ -137,7 +132,7 @@ export default {
         },
         //排序方法
         sortArray() {
-           this.filterCountry.sort(this.compara('altSpellings'))
+            this.filterCountry.sort(this.compara('altSpellings'))
         },
         compara(property) {
             return function (object1, object2) {
@@ -151,11 +146,22 @@ export default {
                     return 0
                 }
             }
+        },
+        pageCount() {
+            let total = this.filterCountry.length;
+            let pp = total / 10;
+            for(let i =1;i<= pp;i++){
+                this.pages.push(i);
+            }
+            console.log( this.pages);//計算總頁數=250,25
+
+
         }
     },
     created() {
         this.getCountry();
     }
+
 }
 
 
