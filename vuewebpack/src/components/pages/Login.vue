@@ -3,24 +3,23 @@
 
         <table class="table mt-4">
             <thead>
-                <tr>搜尋: 
+                <tr>搜尋國家:
                     <input type="text" placeholder="請輸入" 
-                        @keyup.enter="toSearch()" v-model="search" />
+                        @keyup="toSearch()" v-model="search" />
                 </tr>
                 <tr>
-                    <th>
-                        國家旗幟
-                    </th>
-                    <th>
-                        國家名稱
-                    </th>
+                    <th>國家旗幟</th>
+                    <th>國家名稱</th>
+                    <th>國家簡稱</th>
+                    <th></th>
                 </tr>
             </thead>
 
             <tbody>
                 <tr v-for="(item, key) in filterCountry" :key="item.id">
                     <td><img v-bind:src="item.flags.png" alt="Error Image" /></td>
-                    <td>{{ item.altSpellings }}</td>
+                    <td>{{ item.name.common }}</td>
+                    <td>{{ item.altSpellings[0] }}</td>
                     <td><button @click="getPerCountry(item.capital)">查看更多</button></td>
 
                 </tr>
@@ -46,8 +45,8 @@
                         <div v-if="perCountry.maps != null">
                             地理位置: {{ perCountry.maps.googleMaps }}</div>
                         <!-- 暫時抓不到資料 -->
-                        <!-- <div>貨幣名稱: {{ perCountry.currencies.XCD.name }}
-                            貨幣符號: {{ perCountry.currencies.XCD.symbol }}</div> -->
+                        <!--<div>貨幣名稱: {{ perCountry.currencies }}</div>
+                             貨幣符號: {{ perCountry.currencies.XCD.symbol }}</div> -->
 
                     </div>
                     <div class="modal-footer">
@@ -91,7 +90,7 @@ export default {
             country: [],
             perCountry: [],
             search: "",
-            filterCountry:[]
+            filterCountry: []
             // pagenation:{}
         };
     },
@@ -99,22 +98,15 @@ export default {
         getCountry() {
             const api = `${process.env.APIPATH}/all`;
             const vm = this;
-            
+
             this.$http.get(api).then((response) => {
-                console.log(response.data);
-                
-                //嘗試排序
-                response.data.sort(
-                    function (a, b) {
-                        if (a < b)
-                        return -1;
-                        if (a > b)
-                        return 1;
-                        return 0;
-                    }
-                    )
-                    vm.country = response.data;
-                    vm.filterCountry=response.data;
+
+                vm.country = response.data;
+                vm.filterCountry = response.data;
+                // console.log("QQ" + response.data[0].altSpellings);
+                //呼叫排序
+                this.sortArray();
+
                 // vm.pagenation=response.data;//計算總頁數
             })
         },
@@ -125,28 +117,40 @@ export default {
             this.$http.get(url).then((response) => {
                 vm.perCountry = response.data[0];
                 $('#countryModal').modal('show');
-                console.log(response.data[0]);
+                // console.log(response.data[0]);
                 vm.isLoading = false;
-
             })
         },
         toSearch() {
-            console.log(1, this.search);
             const vm = this;
-
-            //用filter顯示
-            vm.filterCountry=vm.country.filter((item) => {
-                //改條件成模糊搜尋
-                if (item.altSpellings.includes(this.search)) {
-                    //回傳搜尋結果
-                    this.filterCountry=item;
-                    console.log("OLO",this.filterCountry); 
+            vm.filterCountry = vm.country.filter((item) => {
+                //模糊搜尋
+                if (item.name.common.includes(this.search)) {
+                    this.filterCountry = item.name.common;
+                    // console.log("OLO", this.filterCountry);
                     return this.filterCountry;
-                }else if(this.search == ''){
                     //如果是空的，回傳全部國家。
+                } else if (this.search == '') {
                     return vm.country;
                 }
             });
+        },
+        //排序方法
+        sortArray() {
+           this.filterCountry.sort(this.compara('altSpellings'))
+        },
+        compara(property) {
+            return function (object1, object2) {
+                let val1 = object1[property]
+                let val2 = object2[property]
+                if (val1 > val2) {
+                    return 1
+                } else if (val1 < val2) {
+                    return -1
+                } else {
+                    return 0
+                }
+            }
         }
     },
     created() {
