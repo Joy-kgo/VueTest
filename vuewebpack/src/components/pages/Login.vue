@@ -63,8 +63,9 @@
                         <span class="sr-only">Previous</span>
                     </a>
                 </li>
+                <!-- 要傳當前頁面到下邊 -->
                 <li class="page-item" v-for="(page, key) in pages" :key="page.id">
-                    <a class="page-link" href="#" >{{ page }}</a>
+                    <a class="page-link" href="#" @click="pageCount(page)">{{ page }}</a>
                 </li>
                 <li class="page-item">
                     <a class="page-link" href="#" aria-label="Next">
@@ -89,7 +90,8 @@ export default {
             perCountry: [],
             search: "",
             filterCountry: [],
-            pages:[]
+            pages: [],
+            countryNum: []
         };
     },
     methods: {
@@ -105,6 +107,12 @@ export default {
                 //呼叫排序
                 this.sortArray();
                 this.pageCount();
+                //計算總筆數=250，去做顯示有幾頁
+                let total = this.filterCountry.length;
+                let pp = total / 10;
+                for (let i = 1; i <= pp; i++) {
+                    this.pages.push(i);
+                }
             })
         },
         getPerCountry(capital) {
@@ -147,14 +155,15 @@ export default {
                 }
             }
         },
-        pageCount() {
-            let total = this.filterCountry.length;
-            let pp = total / 10;
-            for(let i =1;i<= pp;i++){
-                this.pages.push(i);
-            }
-            console.log( this.pages);//計算總頁數=250,25
+        pageCount(page) {
+            //1.計算總筆數=250
 
+            // console.log(this.pages);
+            //3.創一new array，傳入當下頁碼
+
+            console.log(page);
+            //4.計算country對應當下頁碼所需顯示的資料
+            //5.回傳顯示到頁面上
 
         }
     },
