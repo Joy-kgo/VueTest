@@ -3,23 +3,26 @@
 
         <table class="table mt-4">
             <thead>
-                <tr>搜尋國家:
-                    <input type="text" placeholder="請輸入" @keyup="toSearch()" v-model="search" />
+                <tr>
+                    <h5>搜尋國家:
+                        <input type="text" placeholder="請輸入" @keyup="toSearch()" v-model="search" />
+                    </h5>
                 </tr>
                 <tr>
-                    <th>國家旗幟</th>
-                    <th>國家名稱</th>
-                    <th>國家別稱</th>
-                    <th></th>
+                    <th class="table-info">國家旗幟</th>
+                    <th class="table-info">國家名稱</th>
+                    <th class="table-info">國家別稱</th>
+                    <th class="table-info"></th>
                 </tr>
             </thead>
 
             <tbody>
                 <tr v-for="(item, key) in displayCount" :key="item.id">
-                    <td><img v-bind:src="item.flags.png" alt="Error Image" style="width:100px" /></td>
-                    <td>{{ item.name }}</td>
-                    <td>{{ item.altSpellings }}</td>
-                    <td><button @click="getPerCountry(item.capital)">查看更多</button></td>
+                    <td><img v-bind:src="item.flags.png" alt="Error Image" style="width:150px" /></td>
+                    <td  class="align-middle">{{ item.name }}</td>
+                    <td  class="align-middle">{{ item.altSpellings[0] }}</td>
+                    <td  class="align-middle">
+                        <button @click="getPerCountry(item.capital)" class="btn btn-info">查看更多</button></td>
 
                 </tr>
             </tbody>
@@ -30,17 +33,17 @@
             aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">
+                    <div class="modal-header bg-warning">
+                        <h5 class="modal-title " id="exampleModalLabel">
                             {{ perCountry.name }}</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div>國家簡稱: {{ perCountry.altSpellings }}</div>
-                        <div>首都: {{ perCountry.capital }}</div>
-                        <div>時區: {{ perCountry.timezones }}</div>
+                        <h5>國家簡稱: {{ perCountry.altSpellings }}</h5>
+                        <h5>首都: {{ perCountry.capital }}</h5>
+                        <h5>時區: {{ perCountry.timezones }}</h5>
                         <!-- 暫時抓不到資料 -->
                         <!-- <div>貨幣名稱: {{ perCountry.currencies.name }}</div>
                         <div> 貨幣符號: {{ perCountry.currencies.symbol }}</div> -->
@@ -48,14 +51,15 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
                     </div>
                 </div>
             </div>
         </div>
         <!-- 分頁套件 -->
+        <div class="pagination justify-content-center">
         <pagination :records="filterCountry.length" v-model="page" :per-page="perPage" 
             @paginate="pageCount"></pagination>
+        </div>
     </div>
 </template>
 

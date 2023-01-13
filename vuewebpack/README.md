@@ -1,7 +1,6 @@
 # vuewebpack
 
 > A Vue.js project
- src/components/pages/Login.vue 是主要撰寫的程式。
 
 ## Build Setup
 
