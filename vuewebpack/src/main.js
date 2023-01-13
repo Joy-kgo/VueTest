@@ -6,9 +6,10 @@ import axios from 'axios'; //主要Ajax套件
 import VueAxios from 'vue-axios'; //將它轉回Vue套件
 import App from './App';
 import 'bootstrap';
+import Pagination from 'vue-pagination-2';
 
 Vue.use(VueAxios, axios)
-// Vue.use(VueFuse)
+Vue.component('pagination', Pagination);
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */

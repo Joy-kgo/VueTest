@@ -9,14 +9,14 @@
                 <tr>
                     <th>國家旗幟</th>
                     <th>國家名稱</th>
-                    <th>國家簡稱</th>
+                    <th>國家別稱</th>
                     <th></th>
                 </tr>
             </thead>
 
             <tbody>
-                <tr v-for="(item, key) in filterCountry" :key="item.id">
-                    <td><img v-bind:src="item.flags.png" alt="Error Image" /></td>
+                <tr v-for="(item, key) in displayCount" :key="item.id">
+                    <td><img v-bind:src="item.flags.png" alt="Error Image" style="width:100px" /></td>
                     <td>{{ item.name }}</td>
                     <td>{{ item.altSpellings }}</td>
                     <td><button @click="getPerCountry(item.capital)">查看更多</button></td>
@@ -53,34 +53,14 @@
                 </div>
             </div>
         </div>
-
-        <nav aria-label="Page navigation example">
-            <!--分頁-->
-            <ul class="pagination">
-                <li class="page-item">
-                    <a class="page-link" href="#" aria-label="Previous">
-                        <span aria-hidden="true">&laquo;</span>
-                        <span class="sr-only">Previous</span>
-                    </a>
-                </li>
-                <!-- 要傳當前頁面到下邊 -->
-                <li class="page-item" v-for="(page, key) in pages" :key="page.id">
-                    <a class="page-link" href="#" @click="pageCount(page)">{{ page }}</a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="#" aria-label="Next">
-                        <span aria-hidden="true">&raquo;</span>
-                        <span class="sr-only">Next</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
+        <!-- 分頁套件 -->
+        <pagination :records="filterCountry.length" v-model="page" :per-page="perPage" 
+            @paginate="pageCount"></pagination>
     </div>
 </template>
 
 <script>
 import $ from 'jquery';
-
 
 export default {
 
@@ -90,8 +70,11 @@ export default {
             perCountry: [],
             search: "",
             filterCountry: [],
-            pages: [],
-            countryNum: []
+            totalPages: [],
+            countryNum: [],
+            perPage: 10,
+            page: 1,
+            displayCount:[]
         };
     },
     methods: {
@@ -103,17 +86,13 @@ export default {
 
                 vm.country = response.data;
                 vm.filterCountry = response.data;
-                // console.log("QQ" + response.data);
                 //呼叫排序
                 this.sortArray();
-                this.pageCount();
-                //計算總筆數=250，去做顯示有幾頁
-                let total = this.filterCountry.length;
-                let pp = total / 10;
-                for (let i = 1; i <= pp; i++) {
-                    this.pages.push(i);
-                }
-            })
+
+            }).then(()=>{
+                //分頁計算
+                vm.pageCount(vm.page);
+            });
         },
         getPerCountry(capital) {
             const url = `${process.env.APIPATH}/capital/${capital}`;
@@ -121,22 +100,24 @@ export default {
             this.$http.get(url).then((response) => {
                 vm.perCountry = response.data[0];
                 $('#countryModal').modal('show');
-                // console.log("~~"+response.data[0]);
             })
         },
         toSearch() {
             const vm = this;
             vm.filterCountry = vm.country.filter((item) => {
                 //模糊搜尋
-                if (item.name.includes(this.search)) {
+                if (item.name.toLowerCase().includes(this.search.toLowerCase())) {
                     this.filterCountry = item.name;
-                    // console.log("OLO", this.filterCountry);
                     return this.filterCountry;
-                    //如果是空的，回傳全部國家。
+                //如果是空的，回傳全部國家。
                 } else if (this.search == '') {
                     return vm.country;
                 }
             });
+            //重新將頁數指定到第一頁
+            vm.page=1;
+            vm.pageCount(vm.page);
+
         },
         //排序方法
         sortArray() {
@@ -155,16 +136,19 @@ export default {
                 }
             }
         },
-        pageCount(page) {
-            //1.計算總筆數=250
-
-            // console.log(this.pages);
-            //3.創一new array，傳入當下頁碼
-
-            console.log(page);
-            //4.計算country對應當下頁碼所需顯示的資料
-            //5.回傳顯示到頁面上
-
+        pageCount:function(page) {
+            const vm = this;
+            //1.傳入當下頁碼，計算第一筆跟最後一筆
+            const startIndex = this.perPage * (page - 1) + 1;//第一筆
+            const endIndex = startIndex + this.perPage - 1;//最後一筆
+            //2.計算country對應當下頁碼所需顯示的資料
+            if(this.filterCountry.length >1){
+                this.displayCount = this.filterCountry.slice(startIndex,endIndex+1);
+            }else{
+                this.displayCount = this.filterCountry;
+            }
+            //3.回傳顯示到頁面上
+            console.log(startIndex,endIndex);
         }
     },
     created() {
@@ -178,5 +162,4 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
-
 </style>
