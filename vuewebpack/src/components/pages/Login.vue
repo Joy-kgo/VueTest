@@ -1,29 +1,29 @@
 <template>
     <div class="text-center">
 
+        <h5>搜尋國家:
+            <input type="text" placeholder="請輸入" @keyup="toSearch()" v-model="search" />
+        </h5>
         <table class="table mt-4">
             <thead>
-                <tr>
-                    <h5>搜尋國家:
-                        <input type="text" placeholder="請輸入" @keyup="toSearch()" v-model="search" />
-                    </h5>
-                </tr>
                 <tr>
                     <th class="table-info">國家旗幟</th>
                     <th class="table-info">國家名稱</th>
                     <th class="table-info">國家別稱</th>
-                    <th class="table-info"></th>
+                    <th class="table-info">
+                        <button @click="sortArray(toggle,$event)" class="btn btn-success" >v倒序</button>
+                    </th>
                 </tr>
             </thead>
 
             <tbody>
                 <tr v-for="(item, key) in displayCount" :key="item.id">
-                    <td><img v-bind:src="item.flags.png" alt="Error Image" style="width:150px" /></td>
-                    <td  class="align-middle">{{ item.name }}</td>
-                    <td  class="align-middle">{{ item.altSpellings[0] }}</td>
-                    <td  class="align-middle">
-                        <button @click="getPerCountry(item.capital)" class="btn btn-info">查看更多</button></td>
-
+                    <td><img v-bind:src="item.flags.png" alt="Error Image" :style="{ width: '150px' }" /></td>
+                    <td class="align-middle">{{ item.name }}</td>
+                    <td class="align-middle">{{ item.altSpellings }}</td>
+                    <td class="align-middle">
+                        <button @click="getPerCountry(item.capital)" class="btn btn-info">查看更多</button>
+                    </td>
                 </tr>
             </tbody>
 
@@ -41,8 +41,8 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <h5>國家簡稱: {{ perCountry.altSpellings }}</h5>
-                        <h5>首都: {{ perCountry.capital }}</h5>
+                        <h5 :style="styleObject">國家簡稱: {{ perCountry.altSpellings }}</h5>
+                        <h5 :style="[styleObject, styleObject2]">首都: {{ perCountry.capital }}</h5>
                         <h5>時區: {{ perCountry.timezones }}</h5>
                         <!-- 暫時抓不到資料 -->
                         <!-- <div>貨幣名稱: {{ perCountry.currencies.name }}</div>
@@ -57,10 +57,12 @@
         </div>
         <!-- 分頁套件 -->
         <div class="pagination justify-content-center">
-        <pagination :records="filterCountry.length" v-model="page" :per-page="perPage" 
-            @paginate="pageCount"></pagination>
+            <pagination :records="filterCountry.length" v-model="page" :per-page="perPage" @paginate="pageCount">
+            </pagination>
         </div>
     </div>
+    
+  
 </template>
 
 <script>
@@ -78,7 +80,15 @@ export default {
             countryNum: [],
             perPage: 10,
             page: 1,
-            displayCount:[]
+            displayCount: [],
+            toggle:"up",
+            styleObject: {
+                backgroundColor: 'gray',
+            },
+            styleObject2: {
+                color: 'yellow',
+            }
+           
         };
     },
     methods: {
@@ -91,9 +101,9 @@ export default {
                 vm.country = response.data;
                 vm.filterCountry = response.data;
                 //呼叫排序
-                this.sortArray();
+                // this.sortArray();
 
-            }).then(()=>{
+            }).then(() => {
                 //分頁計算
                 vm.pageCount(vm.page);
             });
@@ -113,24 +123,42 @@ export default {
                 if (item.name.toLowerCase().includes(this.search.toLowerCase())) {
                     this.filterCountry = item.name;
                     return this.filterCountry;
-                //如果是空的，回傳全部國家。
+                    //如果是空的，回傳全部國家。
                 } else if (this.search == '') {
                     return vm.country;
                 }
             });
             //重新將頁數指定到第一頁
-            vm.page=1;
+            vm.page = 1;
             vm.pageCount(vm.page);
 
         },
-        //排序方法
-        sortArray() {
-            this.filterCountry.sort(this.compara('altSpellings'))
+        sortArray(prop,e) {
+            //預設toggle=ASC
+            this.toggle="ASC";
+            //切換toggle名稱，ASC=正序，DESC=倒序
+            if(prop === "ASC"){
+                this.filterCountry.sort(this.asc('altSpellings'));
+                console.log("改成倒序排列");
+                e.target.innerText="v倒序";
+                this.displayCount=this.filterCountry;
+                this.toggle="DESC";
+                this.pageCount(this.page);
+            }else {
+                this.filterCountry.sort(this.desc('altSpellings'));
+                console.log("改成正序排列");
+                e.target.innerText="^正序";
+                this.displayCount=this.filterCountry;
+                this.toggle="ASC";
+                this.pageCount(this.page);
+            }
+            
         },
-        compara(property) {
+        asc(property) {
             return function (object1, object2) {
                 let val1 = object1[property]
                 let val2 = object2[property]
+                //正序
                 if (val1 > val2) {
                     return 1
                 } else if (val1 < val2) {
@@ -140,20 +168,33 @@ export default {
                 }
             }
         },
-        pageCount:function(page) {
+        desc(property) {
+            return function (object1, object2) {
+                let val1 = object1[property]
+                let val2 = object2[property]
+                //倒序
+                if (val1 > val2) {
+                    return -1
+                } else if (val1 < val2) {
+                    return 1
+                } else {
+                    return 0
+                }
+            }
+        },
+        pageCount: function (page) {
             const vm = this;
             //1.傳入當下頁碼，計算第一筆跟最後一筆
             const startIndex = this.perPage * (page - 1) + 1;//第一筆
             const endIndex = startIndex + this.perPage - 1;//最後一筆
             //2.計算country對應當下頁碼所需顯示的資料
-            if(this.filterCountry.length >1){
-                this.displayCount = this.filterCountry.slice(startIndex,endIndex+1);
-            }else{
+            if (this.filterCountry.length > 1) {
+                this.displayCount = this.filterCountry.slice(startIndex, endIndex + 1);
+            } else {
                 this.displayCount = this.filterCountry;
             }
-            //3.回傳顯示到頁面上
-            console.log(startIndex,endIndex);
-        }
+            // console.log(startIndex, endIndex);
+        },
     },
     created() {
         this.getCountry();
