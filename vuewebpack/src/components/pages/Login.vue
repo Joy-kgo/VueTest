@@ -11,7 +11,7 @@
                     <th class="table-info">國家名稱</th>
                     <th class="table-info">國家別稱</th>
                     <th class="table-info">
-                        <button @click="sortArray(toggle,$event)" class="btn btn-success" >v倒序</button>
+                        <button @click="sortArray(toggle,$event)" class="btn btn-success" >▼倒序</button>
                     </th>
                 </tr>
             </thead>
@@ -140,14 +140,14 @@ export default {
             if(prop === "ASC"){
                 this.filterCountry.sort(this.asc('altSpellings'));
                 console.log("改成倒序排列");
-                e.target.innerText="v倒序";
+                e.target.innerText="▼倒序";
                 this.displayCount=this.filterCountry;
                 this.toggle="DESC";
                 this.pageCount(this.page);
             }else {
                 this.filterCountry.sort(this.desc('altSpellings'));
                 console.log("改成正序排列");
-                e.target.innerText="^正序";
+                e.target.innerText="▲正序";
                 this.displayCount=this.filterCountry;
                 this.toggle="ASC";
                 this.pageCount(this.page);
