@@ -1,9 +1,12 @@
 <template>
     <div class="text-center">
-
         <h5>搜尋國家:
             <input type="text" placeholder="請輸入" @keyup="toSearch()" v-model="search" />
         </h5>
+        <div>
+            <loading :active.sync="isLoading"></loading>
+        </div>
+
         <table class="table mt-4">
             <thead>
                 <tr>
@@ -11,7 +14,7 @@
                     <th class="table-info">國家名稱</th>
                     <th class="table-info">國家別稱</th>
                     <th class="table-info">
-                        <button @click="sortArray(toggle,$event)" class="btn btn-success" >▼倒序</button>
+                        <button @click="sortArray(toggle, $event)" class="btn btn-success">▼倒序</button>
                     </th>
                 </tr>
             </thead>
@@ -61,8 +64,8 @@
             </pagination>
         </div>
     </div>
-    
-  
+
+
 </template>
 
 <script>
@@ -81,23 +84,24 @@ export default {
             perPage: 10,
             page: 1,
             displayCount: [],
-            toggle:"up",
+            toggle: "up",
             styleObject: {
                 backgroundColor: 'gray',
             },
             styleObject2: {
                 color: 'yellow',
-            }
-           
+            },
+            isLoading: false,
+
         };
     },
     methods: {
         getCountry() {
             const api = `${process.env.APIPATH}/all`;
             const vm = this;
-
             this.$http.get(api).then((response) => {
-
+                
+                vm.isLoading = true;
                 vm.country = response.data;
                 vm.filterCountry = response.data;
                 //呼叫排序
@@ -106,6 +110,8 @@ export default {
             }).then(() => {
                 //分頁計算
                 vm.pageCount(vm.page);
+                vm.isLoading = false;
+
             });
         },
         getPerCountry(capital) {
@@ -133,26 +139,26 @@ export default {
             vm.pageCount(vm.page);
 
         },
-        sortArray(prop,e) {
+        sortArray(prop, e) {
             //預設toggle=ASC
-            this.toggle="ASC";
+            this.toggle = "ASC";
             //切換toggle名稱，ASC=正序，DESC=倒序
-            if(prop === "ASC"){
+            if (prop === "ASC") {
                 this.filterCountry.sort(this.asc('altSpellings'));
                 console.log("改成倒序排列");
-                e.target.innerText="▼倒序";
-                this.displayCount=this.filterCountry;
-                this.toggle="DESC";
+                e.target.innerText = "▼倒序";
+                this.displayCount = this.filterCountry;
+                this.toggle = "DESC";
                 this.pageCount(this.page);
-            }else {
+            } else {
                 this.filterCountry.sort(this.desc('altSpellings'));
                 console.log("改成正序排列");
-                e.target.innerText="▲正序";
-                this.displayCount=this.filterCountry;
-                this.toggle="ASC";
+                e.target.innerText = "▲正序";
+                this.displayCount = this.filterCountry;
+                this.toggle = "ASC";
                 this.pageCount(this.page);
             }
-            
+
         },
         asc(property) {
             return function (object1, object2) {
@@ -207,4 +213,5 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
+
 </style>
