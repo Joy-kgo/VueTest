@@ -17,6 +17,7 @@ export default new Vuex.Store({
         perCountry: [],
         page: 1,
         perPage: 10,
+        search: "",
 
     },
     //非同步行為
@@ -49,7 +50,7 @@ export default new Vuex.Store({
             })
         },
         pageCount(context,page) {
-            console.log("pageCount",page);
+            // console.log("pageCount",page);
             if(page == undefined){
             context.commit('PAGE',1);
             }else{
@@ -58,7 +59,11 @@ export default new Vuex.Store({
             }
             context.commit('PERPAGE',10);
             context.commit('DISPLAYCOUNT');
-            },
+        },
+        toSearch(context,search) { 
+            context.commit('SEARCH',search);
+            context.dispatch('pageCount');
+        },
     },
     //同步行為
     mutations:{
@@ -71,21 +76,33 @@ export default new Vuex.Store({
         },
         FILTERCOUNTRY(state,payload){
             state.filterCountry=payload;
-            console.log("FC",payload);
+            // console.log("FC",payload);
 
         },
         PAGE(state,payload){
             state.page=payload;
-            console.log("PAGE",payload);
+            // console.log("PAGE",payload);
 
         },
         PERPAGE(state,payload){
             state.perPage=payload;
-            console.log("PER",payload);
+            // console.log("PER",payload);
         },
         PERCOUNTRY(state,payload){
             state.perCountry=payload;
-            console.log("PERC",payload);
+            // console.log("PERC",payload);
+        },
+        SEARCH(state){
+            state.filterCountry = state.country.filter((item) => {
+                //模糊搜尋
+                if (item.name.toLowerCase().includes(state.search.toLowerCase())) {
+                    state.filterCountry = item.name;
+                    return state.filterCountry;
+                    //如果是空的，回傳全部國家。
+                } else if (state.search == '') {
+                    return state.country;
+                }
+            });
         },
         DISPLAYCOUNT(state){
             console.log(state.perPage,state.page);

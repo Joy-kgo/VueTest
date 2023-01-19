@@ -1,7 +1,7 @@
 <template>
     <div class="text-center">
         <h5>搜尋國家:
-            <input type="text" placeholder="請輸入" @keyup="toSearch()" v-model="search" />
+            <input type="text" placeholder="請輸入" @keyup="toSearch()" v-model="search"/>
         </h5>
 
         <table class="table mt-4">
@@ -73,7 +73,7 @@ export default {
         return {
             // country: [],
             // perCountry: [],
-            search: "",
+            // search: "",
             // filterCountry: [],
             totalPages: [],
             countryNum: [],
@@ -98,20 +98,8 @@ export default {
             this.$store.dispatch('getPerCountry', capital);
             $('#countryModal').modal('show');
         },
-        toSearch() {
-            const vm = this;
-            vm.filterCountry = vm.country.filter((item) => {
-                //模糊搜尋
-                if (item.name.toLowerCase().includes(this.search.toLowerCase())) {
-                    this.filterCountry = item.name;
-                    return this.filterCountry;
-                    //如果是空的，回傳全部國家。
-                } else if (this.search == '') {
-                    return vm.country;
-                }
-            });
-            this.$store.dispatch('pageCount', page);
-
+        toSearch(search) {
+            this.$store.dispatch('toSearch',search);
         },
         sortArray(prop, e) {
             //預設toggle=ASC
@@ -166,8 +154,7 @@ export default {
             }
         },
         pageCount(page) {
-                    // console.log("AAA",page);
-                    this.$store.dispatch('pageCount', page);
+            this.$store.dispatch('pageCount', page);
         },
     },
     computed: {
@@ -182,11 +169,9 @@ export default {
         },
         page: {
             get() {
-                    console.log('觸發 getter!',this.$store.state.page);
-                    return this.$store.state.page;
+                return this.$store.state.page;
             },
             set(clickPage) {
-                console.log('觸發 setter!',clickPage);
                 //vue報錯不可在外面附值，暫把嚴謹模式關掉
                 this.$store.state.page= clickPage;
             }
@@ -197,14 +182,21 @@ export default {
         perCountry() {
             return this.$store.state.perCountry;
         },
-
+        search: {
+            get() {
+                return this.$store.state.search;
+            },
+            set(toSearch) {
+                //vue報錯不可在外面附值，暫把嚴謹模式關掉
+                this.$store.state.search= toSearch;
+            }
+        },
     },
     created() {
         this.getCountry();
     }
 
 }
-
 
 </script>
 
