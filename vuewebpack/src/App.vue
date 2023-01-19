@@ -1,6 +1,8 @@
 <template>
   <div id="app">
-
+    <div>
+      <loading :active.sync="isLoading"></loading>
+    </div>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <!-- <a class="navbar-brand" href="#">Navbar</a> -->
 
@@ -15,6 +17,7 @@
         </ul>
       </div>
     </nav>
+
     <!-- <img src="./assets/logo.png"> -->
     <!-- <Login/> -->
     <!-- <HelloWorld/> -->
@@ -38,6 +41,11 @@ export default {
     Login
     // HelloWorld
   },
+  computed:{
+        isLoading(){
+            return this.$store.state.isLoading;
+        }
+    },
 }
 </script>
 

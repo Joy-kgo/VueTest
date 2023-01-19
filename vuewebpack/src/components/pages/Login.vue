@@ -3,9 +3,6 @@
         <h5>搜尋國家:
             <input type="text" placeholder="請輸入" @keyup="toSearch()" v-model="search" />
         </h5>
-        <div>
-            <loading :active.sync="isLoading"></loading>
-        </div>
 
         <table class="table mt-4">
             <thead>
@@ -72,18 +69,17 @@
 import $ from 'jquery';
 
 export default {
-
     data() {
         return {
-            country: [],
-            perCountry: [],
+            // country: [],
+            // perCountry: [],
             search: "",
-            filterCountry: [],
+            // filterCountry: [],
             totalPages: [],
             countryNum: [],
-            perPage: 10,
-            page: 1,
-            displayCount: [],
+            // perPage: 10,
+            // page: 1,
+            // displayCount: [],
             toggle: "up",
             styleObject: {
                 backgroundColor: 'gray',
@@ -91,36 +87,16 @@ export default {
             styleObject2: {
                 color: 'yellow',
             },
-            isLoading: false,
 
         };
     },
     methods: {
         getCountry() {
-            const api = `${process.env.APIPATH}/all`;
-            const vm = this;
-            this.$http.get(api).then((response) => {
-                
-                vm.isLoading = true;
-                vm.country = response.data;
-                vm.filterCountry = response.data;
-                //呼叫排序
-                // this.sortArray();
-
-            }).then(() => {
-                //分頁計算
-                vm.pageCount(vm.page);
-                vm.isLoading = false;
-
-            });
+            this.$store.dispatch('getCountry');
         },
         getPerCountry(capital) {
-            const url = `${process.env.APIPATH}/capital/${capital}`;
-            const vm = this;
-            this.$http.get(url).then((response) => {
-                vm.perCountry = response.data[0];
-                $('#countryModal').modal('show');
-            })
+            this.$store.dispatch('getPerCountry', capital);
+            $('#countryModal').modal('show');
         },
         toSearch() {
             const vm = this;
@@ -134,9 +110,7 @@ export default {
                     return vm.country;
                 }
             });
-            //重新將頁數指定到第一頁
-            vm.page = 1;
-            vm.pageCount(vm.page);
+            this.$store.dispatch('pageCount', page);
 
         },
         sortArray(prop, e) {
@@ -149,14 +123,17 @@ export default {
                 e.target.innerText = "▼倒序";
                 this.displayCount = this.filterCountry;
                 this.toggle = "DESC";
-                this.pageCount(this.page);
+                // this.pageCount(this.page);
+                this.$store.dispatch('pageCount', page);
+
             } else {
                 this.filterCountry.sort(this.desc('altSpellings'));
                 console.log("改成正序排列");
                 e.target.innerText = "▲正序";
                 this.displayCount = this.filterCountry;
                 this.toggle = "ASC";
-                this.pageCount(this.page);
+                // this.pageCount(this.page);
+                this.$store.dispatch('pageCount', page);
             }
 
         },
@@ -188,19 +165,39 @@ export default {
                 }
             }
         },
-        pageCount: function (page) {
-            const vm = this;
-            //1.傳入當下頁碼，計算第一筆跟最後一筆
-            const startIndex = this.perPage * (page - 1) + 1;//第一筆
-            const endIndex = startIndex + this.perPage - 1;//最後一筆
-            //2.計算country對應當下頁碼所需顯示的資料
-            if (this.filterCountry.length > 1) {
-                this.displayCount = this.filterCountry.slice(startIndex, endIndex + 1);
-            } else {
-                this.displayCount = this.filterCountry;
-            }
-            // console.log(startIndex, endIndex);
+        pageCount(page) {
+                    // console.log("AAA",page);
+                    this.$store.dispatch('pageCount', page);
         },
+    },
+    computed: {
+        country() {
+            return this.$store.state.country;
+        },
+        filterCountry() {
+            return this.$store.state.filterCountry;
+        },
+        displayCount() {
+            return this.$store.state.displayCount;
+        },
+        page: {
+            get() {
+                    console.log('觸發 getter!',this.$store.state.page);
+                    return this.$store.state.page;
+            },
+            set(clickPage) {
+                console.log('觸發 setter!',clickPage);
+                //vue報錯不可在外面附值，暫把嚴謹模式關掉
+                this.$store.state.page= clickPage;
+            }
+        },
+        perPage() {
+            return this.$store.state.perPage;
+        },
+        perCountry() {
+            return this.$store.state.perCountry;
+        },
+
     },
     created() {
         this.getCountry();
