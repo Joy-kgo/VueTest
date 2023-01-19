@@ -75,12 +75,10 @@ export default {
             // perCountry: [],
             // search: "",
             // filterCountry: [],
-            totalPages: [],
-            countryNum: [],
             // perPage: 10,
             // page: 1,
             // displayCount: [],
-            toggle: "up",
+            // toggle: "",
             styleObject: {
                 backgroundColor: 'gray',
             },
@@ -101,57 +99,21 @@ export default {
         toSearch(search) {
             this.$store.dispatch('toSearch',search);
         },
-        sortArray(prop, e) {
-            //預設toggle=ASC
-            this.toggle = "ASC";
-            //切換toggle名稱，ASC=正序，DESC=倒序
-            if (prop === "ASC") {
-                this.filterCountry.sort(this.asc('altSpellings'));
-                console.log("改成倒序排列");
+        sortArray(toggle, e) {
+            if (toggle === "ASC") {
+                this.$store.dispatch('sortArray',toggle);
                 e.target.innerText = "▼倒序";
-                this.displayCount = this.filterCountry;
-                this.toggle = "DESC";
-                // this.pageCount(this.page);
-                this.$store.dispatch('pageCount', page);
-
             } else {
-                this.filterCountry.sort(this.desc('altSpellings'));
-                console.log("改成正序排列");
+                this.$store.dispatch('sortArray',toggle);
                 e.target.innerText = "▲正序";
-                this.displayCount = this.filterCountry;
-                this.toggle = "ASC";
-                // this.pageCount(this.page);
-                this.$store.dispatch('pageCount', page);
-            }
+             }
 
         },
-        asc(property) {
-            return function (object1, object2) {
-                let val1 = object1[property]
-                let val2 = object2[property]
-                //正序
-                if (val1 > val2) {
-                    return 1
-                } else if (val1 < val2) {
-                    return -1
-                } else {
-                    return 0
-                }
-            }
+        asc() {
+            this.$store.dispatch('asc');
         },
-        desc(property) {
-            return function (object1, object2) {
-                let val1 = object1[property]
-                let val2 = object2[property]
-                //倒序
-                if (val1 > val2) {
-                    return -1
-                } else if (val1 < val2) {
-                    return 1
-                } else {
-                    return 0
-                }
-            }
+        desc() {
+            this.$store.dispatch('desc');
         },
         pageCount(page) {
             this.$store.dispatch('pageCount', page);
@@ -191,6 +153,9 @@ export default {
                 this.$store.state.search= toSearch;
             }
         },
+        toggle(){
+            return this.$store.state.toggle;
+        }
     },
     created() {
         this.getCountry();
