@@ -22,9 +22,8 @@ export default new Vuex.Store({
         property: 'name',
         asc(property) {
             return function (object1, object2) {
-                let val1 = object1[property]
-                let val2 = object2[property]
-                //正序
+                let val1 = object1[property];
+                let val2 = object2[property];
                 if (val1 > val2) {
                     return 1
                 } else if (val1 < val2) {
@@ -36,9 +35,8 @@ export default new Vuex.Store({
         },
         desc(property) {
             return function (object1, object2) {
-                let val1 = object1[property]
-                let val2 = object2[property]
-                //倒序
+                let val1 = object1[property];
+                let val2 = object2[property];
                 if (val1 > val2) {
                     return -1
                 } else if (val1 < val2) {
@@ -52,7 +50,6 @@ export default new Vuex.Store({
     },
     //非同步行為
     actions: {
-        //payload 載荷
         updateLoading(context, status) {
             //對應下方的LOADING
             setTimeout(() => {
@@ -65,21 +62,18 @@ export default new Vuex.Store({
                 context.commit('COUNTRY', response.data);
                 context.commit('FILTERCOUNTRY', response.data);
 
-            })
-                .then(() => {
+            }).then(() => {
                     //分頁計算
                     context.dispatch('pageCount');
                 });
         },
-        getPerCountry(context, capital) {
-            console.log("111", context, capital);
-            const url = `${process.env.APIPATH}/capital/${capital}`;
+        getPerCountry(context, name) {
+            const url = `${process.env.APIPATH}/name/${name}`;
             axios.get(url).then((response) => {
                 context.commit('PERCOUNTRY', response.data[0]);
             })
         },
         pageCount(context, page) {
-            // console.log("pageCount",page);
             if (page == undefined) {
                 context.commit('PAGE', 1);
             } else {
@@ -94,7 +88,6 @@ export default new Vuex.Store({
             context.dispatch('pageCount');
         },
         sortArray(context, toggle) {
-            // console.log("SORT",toggle);
             context.commit('TOGGLE', toggle);
             context.dispatch('pageCount');
         },
@@ -110,21 +103,15 @@ export default new Vuex.Store({
         },
         FILTERCOUNTRY(state, payload) {
             state.filterCountry = payload;
-            // console.log("FC",payload);
-
         },
         PAGE(state, payload) {
             state.page = payload;
-            // console.log("PAGE",payload);
-
         },
         PERPAGE(state, payload) {
             state.perPage = payload;
-            // console.log("PER",payload);
         },
         PERCOUNTRY(state, payload) {
             state.perCountry = payload;
-            // console.log("PERC",payload);
         },
         SEARCH(state) {
             state.filterCountry = state.country.filter((item) => {
@@ -139,13 +126,11 @@ export default new Vuex.Store({
             });
         },
         DISPLAYCOUNT(state) {
-            console.log(state.perPage, state.page);
             const startIndex = state.perPage * (state.page - 1) + 1;
             const endIndex = startIndex + state.perPage - 1;
 
             if (state.filterCountry.length > 1) {
                 state.displayCount = state.filterCountry.slice(startIndex, endIndex + 1);
-
             } else {
                 state.displayCount = state.filterCountry;
             }
