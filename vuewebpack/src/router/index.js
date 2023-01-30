@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import VueRouter from  'vue-router';
 import Home from '@/App';
-import Page from '@/components/pages/page';
+import page from '@/components/pages/page';
 import child from '@/components/pages/child';
 import child2 from '@/components/pages/child2';
 import child3 from '@/components/pages/child3';
@@ -24,7 +24,7 @@ export default new VueRouter({
         path:'/page',//對應的虛擬路徑
         // component: Page,//對應元件
         components:{
-            default:Page,
+            default:page,
             menu:Menu
         },
         //巢狀路徑
