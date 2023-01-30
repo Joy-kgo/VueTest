@@ -3,12 +3,11 @@
     <div>
       <loading :active.sync="isLoading"></loading>
     </div>
-    <!-- 同個路徑載入兩個頁面元件 -->
     <nav-component></nav-component>
     <router-view name="menu"> </router-view>
-    <header-component></header-component>
-    <my-component></my-component>
-    <bottom-component></bottom-component>
+    <search-component></search-component>
+    <main-component></main-component>
+    <paging-component></paging-component>
 
   </div>
 </template>
@@ -23,9 +22,9 @@ export default {
   name: 'App',
   components: {
     'nav-component': NavBar,
-    'header-component': Search,
-    'my-component': Main,
-    'bottom-component': Paging
+    'search-component': Search,
+    'main-component': Main,
+    'paging-component': Paging
   },
   computed: {
     isLoading() {

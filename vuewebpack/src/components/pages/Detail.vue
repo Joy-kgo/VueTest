@@ -1,6 +1,5 @@
 <template>
     <div class="text-center">
-        <!-- Modal -->
         <div class="modal fade" id="countryModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
             aria-hidden="true">
             <div class="modal-dialog" role="document">
@@ -37,7 +36,7 @@
 <script>
 
 export default {
-   
+
     computed: {
         perCountry() {
             return this.$store.state.perCountry;

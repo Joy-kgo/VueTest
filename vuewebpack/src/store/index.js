@@ -16,42 +16,11 @@ export default new Vuex.Store({
         displayCount: [],
         perCountry: [],
         page: 1,
-        perPage: 10,
-        search: "",
-        toggle: "ASC",//預設
-        property: 'name',
-        asc(property) {
-            return function (object1, object2) {
-                let val1 = object1[property];
-                let val2 = object2[property];
-                if (val1 > val2) {
-                    return 1
-                } else if (val1 < val2) {
-                    return -1
-                } else {
-                    return 0
-                }
-            }
-        },
-        desc(property) {
-            return function (object1, object2) {
-                let val1 = object1[property];
-                let val2 = object2[property];
-                if (val1 > val2) {
-                    return -1
-                } else if (val1 < val2) {
-                    return 1
-                } else {
-                    return 0
-                }
-            }
-        },
-
+        perPage: 10
     },
     //非同步行為
     actions: {
         updateLoading(context, status) {
-            //對應下方的LOADING
             setTimeout(() => {
                 context.commit('LOADING', status);
             }, 300);
@@ -63,7 +32,6 @@ export default new Vuex.Store({
                 context.commit('FILTERCOUNTRY', response.data);
 
             }).then(() => {
-                    //分頁計算
                     context.dispatch('pageCount');
                 });
         },
@@ -83,18 +51,9 @@ export default new Vuex.Store({
             context.commit('DISPLAYCOUNT');
 
         },
-        toSearch(context, search) {
-            context.commit('SEARCH', search);
-            context.dispatch('pageCount');
-        },
-        sortArray(context, toggle) {
-            context.commit('TOGGLE', toggle);
-            context.dispatch('pageCount');
-        },
     },
     //操作資料狀態，同步行為
     mutations: {
-        //對應上方的'state:'
         LOADING(state, status) {
             state.isLoading = status;
         },
@@ -113,18 +72,6 @@ export default new Vuex.Store({
         PERCOUNTRY(state, payload) {
             state.perCountry = payload;
         },
-        SEARCH(state) {
-            state.filterCountry = state.country.filter((item) => {
-                //模糊搜尋
-                if (item.name.toLowerCase().includes(state.search.toLowerCase())) {
-                    state.filterCountry = item.name;
-                    return state.filterCountry;
-                    //如果是空的，回傳全部國家。
-                } else if (state.search == '') {
-                    return state.country;
-                }
-            });
-        },
         DISPLAYCOUNT(state) {
             const startIndex = state.perPage * (state.page - 1) + 1;
             const endIndex = startIndex + state.perPage - 1;
@@ -133,19 +80,6 @@ export default new Vuex.Store({
                 state.displayCount = state.filterCountry.slice(startIndex, endIndex + 1);
             } else {
                 state.displayCount = state.filterCountry;
-            }
-        },
-        TOGGLE(state) {
-            if (state.toggle === "ASC") {
-                state.filterCountry.sort(state.asc(state.property));
-                console.log("改成倒序排列");
-                state.displayCount = state.filterCountry;
-                state.toggle = "DESC";
-            } else {
-                state.filterCountry.sort(state.desc(state.property));
-                console.log("改成正序排列");
-                state.displayCount = state.filterCountry;
-                state.toggle = "ASC";
             }
         }
     }

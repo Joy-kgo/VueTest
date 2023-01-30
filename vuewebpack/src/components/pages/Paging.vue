@@ -26,7 +26,6 @@ export default {
                 return this.$store.state.page;
             },
             set(clickPage) {
-                //vue報錯不可在外面附值，暫把嚴謹模式關掉
                 this.$store.state.page = clickPage;
             }
         },
