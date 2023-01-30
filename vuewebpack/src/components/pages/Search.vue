@@ -11,24 +11,27 @@
 
 <script>
 export default {
-
-    methods: {
-        toSearch(search) {
-            this.$store.dispatch('toSearch', search);
-        }
-    },
-    computed: {
-        search: {
-            get() {
-                return this.$store.state.search;
-            },
-            set(toSearch) {
-                //vue報錯不可在外面附值，暫把嚴謹模式關掉
-                this.$store.state.search = toSearch;
+    data() {
+        return {
+            search: ""
             }
-        },
-    }
+    },
+    methods: {
+        toSearch() {
+            this.$store.state.filterCountry = this.$store.state.country.filter((item) => {
+                //模糊搜尋
+                if (item.name.toLowerCase().includes(this.search.toLowerCase())) {
+                    this.$store.state.filterCountry = item.name;
+                    return this.$store.state.filterCountry;
+                    //如果是空的，回傳全部國家。
+                } else if (this.search == '') {
+                    return this.$store.state.country;
+                }
+            });
+            this.$store.dispatch('pageCount');
 
+        },
+    },
 }
 
 </script>
