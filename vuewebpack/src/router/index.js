@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import VueRouter from  'vue-router';
-import Home from '@/components/pages/Login';
+import Home from '@/App';
 import Page from '@/components/pages/page';
 import child from '@/components/pages/child';
 import child2 from '@/components/pages/child2';
